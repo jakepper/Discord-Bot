@@ -1,8 +1,5 @@
 const playdl = require('play-dl');
-// const ytdl = require('yt-dl');
-// const ytSearch = require('yt-search');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, NoSubscriberBehavior, AudioPlayerStatus } = require('@discordjs/voice');
-const { MessageSelectMenu } = require('discord.js');
 
 const queue = new Map();
 // (message.guild.id, queueConstructor object { voice channel, text channel, connection, song[] });
@@ -25,10 +22,10 @@ module.exports = {
         if (cmd === 'play') {
             if (!args.length) return message.channel.send('You need to send the search arguments!');
 
-            let song = {};
+            let songs = [];
 
             const videoFinder = async (query) => {
-                    const searchInfo = await playdl.search(query);
+                    const searchInfo = await playdl.search(query, {limit: 1});
                     return (searchInfo.length > 0) ? searchInfo[0] : null;
                 }
 
@@ -36,27 +33,51 @@ module.exports = {
                 const url = args[0];
                 if (url.includes('youtube')) {
                     const songInfo = await playdl.video_info(url);
-                    song = {title: songInfo.video_details.title, url: songInfo.video_details.url}
+                    songs.push({title: songInfo.video_details.title, url: songInfo.video_details.url});
                 }
                 else if (url.includes('spotify')) {
                     if (playdl.is_expired()) {
                         await playdl.refreshToken();
                     }
+
                     const spotifyInfo = await playdl.spotify(url);
-                    const title = `${spotifyInfo.name} - ${spotifyInfo.artists[0].name}`;
-                    const video = await videoFinder(title);
-                    if (video) {
-                        song = {title: title, url: video.url}
+                    if (spotifyInfo.type === 'playlist') {
+                        await spotifyInfo.fetch();
+
+                        let count = 0;
+                        for (let i = 1; i <= spotifyInfo.total_pages; i++) {
+                            for (const track of spotifyInfo.page(i)) {
+                                const title = `${track.name} - ${track.artists[0].name}`;
+                                const video = await videoFinder(title);
+                                if (video) {
+                                    songs.push({title: title, url: video.url});
+                                    count++;
+                                }
+                            }
+                        }
+
+                        const embed = new Discord.MessageEmbed()
+                            .setTitle(`***${count}*** songs queued from ***${spotifyInfo.name}***`)
+                            .setColor('#dc143c')
+                            .setURL(url);
+                        await message.channel.send({embeds: [embed]});
                     }
                     else {
-                        return message.channel.send('Error finding song.');
+                        const title = `${spotifyInfo.name} - ${spotifyInfo.artists[0].name}`;
+                        const video = await videoFinder(title);
+                        if (video) {
+                            songs.push({title: title, url: video.url});
+                        }
+                        else {
+                            return message.channel.send('Error finding song.');
+                        }
                     }
                 }
             }
             else {
                 const video = await videoFinder(args.join(' '));
                 if (video) {
-                    song = {title: video.title, url: video.url}
+                    songs.push({title: video.title, url: video.url});
                 }
                 else {
                     return message.channel.send('Error finding song.');
@@ -72,7 +93,9 @@ module.exports = {
                 }
 
                 queue.set(message.guild.id, queueConstructor);
-                queueConstructor.songs.push(song);
+                songs.forEach(song => {
+                    queueConstructor.songs.push(song);
+                });
 
                 try {
                     const connection = joinVoiceChannel({
@@ -81,22 +104,26 @@ module.exports = {
                         adapterCreator: message.guild.voiceAdapterCreator
                     });
                     queueConstructor.connection = connection;
-                    songPlayer(message.guild, song, Discord);
+                    songPlayer(message.guild, queueConstructor.songs[0], Discord);
                 }
                 catch (error) {
                     queue.delete(message.guild.id);
-                    message.channel.send('There was an error connecting to the voice channel');
+                    await message.channel.send('There was an error connecting to the voice channel');
                     console.log(error);
                 }
             }
             else {
-                serverQueue.songs.push(song);
-                const embed = new Discord.MessageEmbed()
-                    .setTitle(`Track Queued - Position ${serverQueue.songs.indexOf(song)}`)
-                    .setDescription(song.title)
-                    .setURL(song.url)
-                    .setColor('#dc143c');
-                message.channel.send({embeds: [embed]});
+                songs.forEach(song => {
+                    serverQueue.songs.push(song);
+                });
+                if (songs.length === 1) {
+                    const embed = new Discord.MessageEmbed()
+                        .setTitle(`Track Queued - Position ${serverQueue.songs.indexOf(songs[0])}`)
+                        .setDescription(songs[0].title)
+                        .setURL(songs[0].url)
+                        .setColor('#dc143c');
+                    await message.channel.send({embeds: [embed]});
+                }
             }
         }
         else if (cmd === 'skip') {
@@ -108,9 +135,9 @@ module.exports = {
             const embed = new Discord.MessageEmbed()
                 .setTitle('Song Skipped')
                 .setDescription(skipped.title)
-                .setColor('dc143c');
-            message.channel.send({embeds: [embed]});
+                .setColor('#dc143c');
             songPlayer(message.guild, serverQueue.songs[0], Discord);
+            await message.channel.send({embeds: [embed]});
         }
         else if (cmd === 'stop') {
             if (!message.member.voice.channel) return message.channel.send('You need to be in a voice channel to execute this command!');
