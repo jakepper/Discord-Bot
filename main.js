@@ -13,6 +13,7 @@ const client = new Discord.Client({
 
 client.commands = new Discord.Collection();
 client.events = new Discord.Collection();
+client.queue = new Map();
 
 ['command-handler', 'event-handler'].forEach(handler => {
     require(`./handlers/${handler}`)(client, Discord);
