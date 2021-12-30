@@ -78,19 +78,22 @@ module.exports = {
                     if (soundcloud.type === 'playlist') {
                         await soundcloud.fetch();
 
-                        setTimeout(() => {
-                            this.playNextSong(message.guild, client, Discord);
-                        }, 5000);
+                        if (serverQueue.songs.length === 0) {
+                            setTimeout(() => {
+                                this.playNextSong(message.guild, client, Discord);
+                            }, 5000);
+                        }
 
                         for (const track of soundcloud.tracks) {
                             serverQueue.songs.push({ title: track.name, url: track.url });
                         }
+                        console.log('\tDone!');
 
                         const embed = new Discord.MessageEmbed()
                             .setTitle(`***${soundcloud.tracks.length}*** songs queued from - \`${soundcloud.name}\``)
-                            .setDescription(`Author - ${soundcloud.user.name}`)
-                            .setColor('#dc143c')
-                            .setURL(url);
+                            .setDescription(`Creator : ${soundcloud.user.name}`)
+                            .setColor('#dc143c');
+                            //.setURL(url);
                         return message.channel.send({embeds: [embed]});
                     }
                     else if (soundcloud.type === 'track') {
@@ -106,13 +109,15 @@ module.exports = {
                     }
 
                     const spotify = await playdl.spotify(url);
-                    if (spotify.type === 'playlist') {
-                        console.log('\nFetching Playlist . . .');
+                    if (spotify.type === 'playlist' || spotify.type === 'album') {
+                        console.log('\nFetching Playlist/Album . . .');
                         await spotify.fetch();
 
-                        setTimeout(() => {
+                        if (serverQueue.songs.length === 0) {
+                            setTimeout(() => {
                             this.playNextSong(message.guild, client, Discord);
-                        }, 5000);
+                            }, 5000);
+                        }
                         
                         let count = 0;
                         for (let i = 1; i <= spotify.total_pages; i++) {
@@ -126,12 +131,14 @@ module.exports = {
                                 }
                             }
                         }
+                        console.log('\tDone!');
 
+                        const author = spotify.type === 'playlist' ? spotify.owner.name : spotify.artists[0].name;
                         const embed = new Discord.MessageEmbed()
                             .setTitle(`***${count}*** songs queued from - \`${spotify.name}\``)
-                            .setDescription(`Author - ${spotify.owner.name}`)
-                            .setColor('#dc143c')
-                            .setURL(url);
+                            .setDescription(`Creator : ${author}`)
+                            .setColor('#dc143c');
+                            //.setURL(url);
                         return message.channel.send({embeds: [embed]});
                     }
                     else if (spotify.type === 'track') {
@@ -162,11 +169,10 @@ module.exports = {
                 }
             }
 
-            if (serverQueue.songs.length > 0) {
+            if (serverQueue.songs.length > 1) {
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Track Queued - Position ${serverQueue.songs.length}`)
-                    .setDescription(serverQueue.songs[0].title)
-                    .setURL(serverQueue.songs[0].url)
+                    .setDescription(serverQueue.songs[serverQueue.songs.length - 1].title)
                     .setColor('#dc143c');
                 await message.channel.send({embeds: [embed]});
             }
@@ -185,13 +191,10 @@ module.exports = {
     },
     async playNextSong(guild, client, Discord) {
         const songQueue = client.queue.get(guild.id);
-        const song = songQueue.songs[0];
+        if (!songQueue) return;
 
-        if (!song) {
-            // songQueue.connection.destroy();
-            // client.queue.delete(guild.id);
-            return;
-        }
+        const song = songQueue.songs[0];
+        if (!song) return;
 
         const stream = await playdl.stream(song.url);
         const resource = createAudioResource(stream.stream, { inputType: stream.type });
