@@ -5,6 +5,7 @@ module.exports = {
     aliases: ['mc', 'mcstatus', 'mccheck', 'minecraft'],
     cooldown: 6,
     description: "Get status information about a minecraft server",
+    usage: "mcserver <IP Address> [port]",
     execute(message, args, client, Discord) {
         if (!args[0]) return message.channel.send('Please enter a minecraft server ip');
         

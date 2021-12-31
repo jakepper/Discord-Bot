@@ -2,9 +2,10 @@ const { playNextSong } = require('./play.js');
 
 module.exports = {
     name: 'skip',
-    aliases: [],
-    cooldown: undefined,
+    aliases: ['pass'],
+    cooldown: 3,
     description: "Skips the currently playing resource if any",
+    usage: "skip",
     execute(message, args, client, Discord) {
         if (!message.member.voice.channel) return message.channel.send('You need to be in a voice channel to execute this command!');
 

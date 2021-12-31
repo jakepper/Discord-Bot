@@ -1,6 +1,8 @@
 module.exports = {
     name: 'unmute',
+    aliases: [],
     description: "Unmutes a member",
+    usage: "unmute <@member>",
     execute(message, args, client, Discord) {
         if (!message.member.permissions.has('ADMINISTRATOR')) {
             return message.reply("You must have the Administrator permission in order to unmute members");

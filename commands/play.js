@@ -6,6 +6,7 @@ module.exports = {
     aliases: [],
     cooldown: undefined,
     description: "Advanced Music Bot",
+    usage: "play <Query|URL>",
     async execute(message, args, client, Discord, cmd) {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send("You need to be in a voice channel to execute this command!");

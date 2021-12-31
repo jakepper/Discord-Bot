@@ -3,6 +3,7 @@ module.exports = {
     aliases: ['leave'],
     cooldown: undefined,
     description: "Disconnects bot from voice channel",
+    usage: "stop",
     execute(message, args, client, Discord) {
         if (!message.member.voice.channel) return message.channel.send('You need to be in a voice channel to execute this command!');
 

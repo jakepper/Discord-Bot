@@ -1,6 +1,8 @@
 module.exports = {
     name: 'kick',
+    aliases: [],
     description: "Kick member from server",
+    usage: "kick <@member>",
     execute(message, args, client, Discord) {
         if (!message.member.permissions.has('ADMINISTRATOR')) {
             return message.reply("You must have the Administrator permission in order to kick members");

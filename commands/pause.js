@@ -4,7 +4,7 @@ module.exports = {
     name: 'pause',
     aliases: [],
     cooldown: undefined,
-    description: "",
+    description: "Pauses the currently playing resource",
     execute(message, args, client, Discord) {
         if (!message.member.voice.channel) return message.channel.send('You need to be in a voice channel to execute this command!');
 

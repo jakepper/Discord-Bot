@@ -3,6 +3,7 @@ module.exports = {
     aliases: ['q', 'next'],
     cooldown: undefined,
     description: "Lists the current song queue if any",
+    usage: "next [amount]",
     execute(message, args, client, Discord, cmd) {
         if (!message.member.voice.channel) return message.channel.send('You need to be in a voice channel to execute this command');
 

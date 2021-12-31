@@ -2,6 +2,7 @@ module.exports = {
     name: 'clear',
     aliases: ['del', 'delete'],
     description: "Clears a specified amount of messages",
+    usage: "cleaer [amount]",
     async execute(message, args, client, Discord) {
         if (!message.member.permissions.has('ADMINISTRATOR')) {
             return message.reply("You must have the Administrator permission in order to delete messages");

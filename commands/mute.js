@@ -2,7 +2,9 @@ const ms = require('ms');
 
 module.exports = {
     name: 'mute',
+    aliases: ['silence'],
     description: 'Mutes a member',
+    usage: "mute <@member> [timeout]",
     execute(message, args, client, Discord) {
         if (!message.member.permissions.has('ADMINISTRATOR')) {
             return message.reply("You must have the Administrator permission in order to mute/timeout members");
