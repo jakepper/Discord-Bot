@@ -11,6 +11,7 @@ module.exports = {
     aliases: ['img'],
     description: "Sends image based off of query",
     usage: "image <query>",
+    args: "<query> : REQUIRED - Image query/keywords",
     async execute(message, args, client, Discord) {
         const imageQuery = args.join(' ');
         if (!imageQuery) return message.channel.send('Please send an image query');

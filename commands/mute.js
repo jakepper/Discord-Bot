@@ -5,6 +5,7 @@ module.exports = {
     aliases: ['silence'],
     description: 'Mutes a member',
     usage: "mute <@member> [timeout]",
+    args: "<@member> : REQUIRED - Server member mention\n[timeout] : OPTIONAL (default=none) - timeout, 1s | 2m | 3h",
     execute(message, args, client, Discord) {
         if (!message.member.permissions.has('ADMINISTRATOR')) {
             return message.reply("You must have the Administrator permission in order to mute/timeout members");

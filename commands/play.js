@@ -6,7 +6,8 @@ module.exports = {
     aliases: [],
     cooldown: undefined,
     description: "Advanced Music Bot",
-    usage: "play <Query|URL>",
+    usage: "play <query|URL>",
+    args: "<query|URL> : REQUIRED - Resource query OR track/album/playlist link from spotify/soundcloud",
     async execute(message, args, client, Discord, cmd) {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send("You need to be in a voice channel to execute this command!");

@@ -1,18 +1,19 @@
+require('dotenv').config();
+
 module.exports = {
     name: 'help',
     aliases: ['h'],
     description: "Lists valid commands",
     usage: "help",
-    async execute(message, args, client, Discord) {
-        let description = []
-
+    args: "NA",
+    execute(message, args, client, Discord) {
+        let embed = new Discord.MessageEmbed()
+            .setTitle('Command List')
+            .setFooter(`Use ${process.env.PREFIX}usage <command> for more details`);
         client.commands.forEach((value, key) => {
-            description.push(`${key} - ${value.description}`);
+            embed.addField(key, value.description);
         });
 
-        const embed = new Discord.MessageEmbed()
-            .setTitle('Command List')
-            .setDescription(description.join("\n"));
-        await message.channel.send({ embeds: [embed]});
+        return message.channel.send({ embeds: [embed]});
     }
 }

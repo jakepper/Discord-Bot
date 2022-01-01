@@ -6,6 +6,7 @@ module.exports = {
     cooldown: 6,
     description: "Get status information about a minecraft server",
     usage: "mcserver <IP Address> [port]",
+    args: "<IP Address> : REQUIRED - Minecraft servers IP address\n[port] : OPTIONAL (default=25565) - Minecraft servers port number ",
     execute(message, args, client, Discord) {
         if (!args[0]) return message.channel.send('Please enter a minecraft server ip');
         

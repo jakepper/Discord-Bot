@@ -3,7 +3,9 @@ module.exports = {
     aliases: [],
     cooldown: undefined,
     description: "",
-    execute(message, args, client, Discord) {
+    usage: "",
+    args: "",
+    execute(message, args, client, Discord, cmd) {
         
     }
 }

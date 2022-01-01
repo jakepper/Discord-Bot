@@ -3,6 +3,7 @@ module.exports = {
     aliases: [],
     description: "Ban member from server",
     usage: "ban <@member>",
+    args: "<@member> : REQUIRED - Server member mention",
     execute(message, args, client, Discord) {
         if (!message.member.permissions.has('ADMINISTRATOR')) {
             return message.reply("You must have the Administrator permission in order to ban members");
