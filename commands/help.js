@@ -6,7 +6,7 @@ module.exports = {
     description: "Lists valid commands",
     usage: "help",
     args: "NA",
-    execute(message, args, client, Discord) {
+    execute(message, args, client, Discord, cmd, profileData) {
         let embed = new Discord.MessageEmbed()
             .setTitle('Command List')
             .setFooter(`Use ${process.env.PREFIX}usage <command> for more details`);

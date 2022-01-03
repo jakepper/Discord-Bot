@@ -17,5 +17,7 @@ module.exports = {
             .sort((a, b) => a.sort - b.sort)
             .map(({ value }) => value);
         serverQueue.songs.unshift(firstSong);
+
+        message.react(':thumbsup:');
     }
 }

@@ -4,11 +4,8 @@ module.exports = {
     description: "Kick member from server",
     usage: "kick <@member>",
     args: "<@member> : REQUIRED - Server member mention",
-    execute(message, args, client, Discord) {
-        if (!message.member.permissions.has('ADMINISTRATOR')) {
-            return message.reply("You must have the Administrator permission in order to kick members");
-        }
-
+    permissions: ['ADMINISTRATOR', 'KICK_MEMEBERS'],
+    execute(message, args, client, Discord, cmd, profileData) {
         const member = message.mentions.users.first();
 
         if (member) {

@@ -8,7 +8,7 @@ module.exports = {
     description: "Advanced Music Bot",
     usage: "play <query|URL>",
     args: "<query|URL> : REQUIRED - Resource query OR track/album/playlist link from spotify/soundcloud",
-    async execute(message, args, client, Discord, cmd) {
+    async execute(message, args, client, Discord, cmd, profileData) {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send("You need to be in a voice channel to execute this command!");
 
@@ -46,7 +46,7 @@ module.exports = {
                     });
                     player.on(AudioPlayerStatus.Idle, async () => {
                         queueConstructor.songs.shift();
-                        await this.playNextSong(message.guild, client, Discord);
+                        await this.playNextSong(message.guild, client, Discord, profileData);
                     });
                     queueConstructor.player = player;
                     connection.subscribe(player);
@@ -82,7 +82,7 @@ module.exports = {
 
                         if (serverQueue.songs.length === 0) {
                             setTimeout(() => {
-                                this.playNextSong(message.guild, client, Discord);
+                                this.playNextSong(message.guild, client, Discord, profileData);
                             }, 5000);
                         }
 
@@ -117,7 +117,7 @@ module.exports = {
 
                         if (serverQueue.songs.length === 0) {
                             setTimeout(() => {
-                            this.playNextSong(message.guild, client, Discord);
+                            this.playNextSong(message.guild, client, Discord, profileData);
                             }, 5000);
                         }
                         
@@ -173,13 +173,13 @@ module.exports = {
 
             if (serverQueue.songs.length > 1) {
                 const embed = new Discord.MessageEmbed()
-                    .setTitle(`Track Queued - Position ${serverQueue.songs.length}`)
+                    .setTitle(`Track Queued - Position ${serverQueue.songs.length - 1}`)
                     .setDescription(serverQueue.songs[serverQueue.songs.length - 1].title)
                     .setColor('#dc143c');
                 await message.channel.send({embeds: [embed]});
             }
             else {
-                await this.playNextSong(message.guild, client, Discord);
+                await this.playNextSong(message.guild, client, Discord, profileData);
             }
         }
     },
@@ -191,7 +191,7 @@ module.exports = {
             return true;
         }
     },
-    async playNextSong(guild, client, Discord) {
+    async playNextSong(guild, client, Discord, profileData) {
         const songQueue = client.queue.get(guild.id);
         if (!songQueue) return;
 
@@ -202,12 +202,14 @@ module.exports = {
         const resource = createAudioResource(stream.stream, { inputType: stream.type });
         songQueue.player.play(resource);
 
+        const redEmoji = '❤️';
         const embed = new Discord.MessageEmbed()
             .setTitle('Now Playing')
             .setDescription(song.title)
             .setURL(song.url)
             .setColor('#dc143c');
-        return songQueue.textChannel.send({embeds: [embed]});
+        let msg = await songQueue.textChannel.send({embeds: [embed]});
+        msg.react(redEmoji);
     }
 }
 

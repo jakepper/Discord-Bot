@@ -24,7 +24,7 @@ module.exports = {
         const embed = new Discord.MessageEmbed()
             .setTitle(`Usage: \`${process.env.PREFIX}${command.usage}\``)
             .addFields(
-                { name: 'Aliases', value: command.aliases.join(" | ") },
+                { name: 'Aliases', value: command.aliases.join(" | ") || "NONE" },
                 { name: 'Arguments', value: command.args },
                 { name: 'Description', value: command.description }
             );

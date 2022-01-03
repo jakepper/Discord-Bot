@@ -10,8 +10,8 @@ module.exports = {
 
         const serverQueue = client.queue.get(message.guild.id);
 
-        if (!serverQueue) return message.channel.send('There aren\'t any resources in the queue');
-
+        if (!serverQueue) return message.channel.send('There aren\'t any tracks in the queue');
+        if (!serverQueue.songs.length) return message.channel.send('There aren\'t any tracks in the queue');
         
         const amount = args[0] ? args[0] : 11;
 

@@ -4,11 +4,9 @@ module.exports = {
     description: "Clears a specified amount of messages",
     usage: "clear <amount>",
     args: "<amount> : REQUIRED - Number of messages to delete",
-    async execute(message, args, client, Discord) {
-        if (!message.member.permissions.has('ADMINISTRATOR')) {
-            return message.reply("You must have the Administrator permission in order to delete messages");
-        }
-        else if (!args[0]) {
+    permissions: ['ADMINISTRATOR', 'MANAGE_MESSAGES'],
+    async execute(message, args, client, Discord, cmd, profileData) {
+        if (!args[0]) {
             return message.reply("Please enter the number of messages you would like to clear!");
         }
         else if (args[0] == 'all') {

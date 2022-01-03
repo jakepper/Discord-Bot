@@ -6,18 +6,17 @@ module.exports = {
     description: 'Mutes a member',
     usage: "mute <@member> [timeout]",
     args: "<@member> : REQUIRED - Server member mention\n[timeout] : OPTIONAL (default=none) - timeout, 1s | 2m | 3h",
-    execute(message, args, client, Discord) {
-        if (!message.member.permissions.has('ADMINISTRATOR')) {
-            return message.reply("You must have the Administrator permission in order to mute/timeout members");
-        }
-
+    permissions: ['ADMINISTRATOR', 'MUTE_MEMBERS', 'DEAFEN_MEMBERS'],
+    execute(message, args, client, Discord, cmd, profileData) {
         const member = message.mentions.users.first();
 
         if (member) {
+            let target = message.guild.members.cache.get(member.id);
+
+            if (target.permissions.has('ADMINISTRATOR') || member === message.member) return message.channel.send('Cannot mute an administrator or yourself');
+
             let mainRole = message.guild.roles.cache.find(role => role.name === 'member');
             let muteRole = message.guild.roles.cache.find(role => role.name === 'mute');
-
-            let target = message.guild.members.cache.get(member.id);
 
             if (!args[1]) {
                 target.roles.remove(mainRole);
@@ -36,12 +35,12 @@ module.exports = {
                 }, ms(args[1]));
             } 
             catch (error) {
-                message.channel.send('Invalid arguments, try again.');
+                return message.channel.send('Invalid arguments, try again.');
             }
             
         }
         else {
-            message.channel.send('Mentioned member does not exist');
+            return message.channel.send('Mentioned member does not exist');
         }
     }
 }
