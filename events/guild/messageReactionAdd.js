@@ -14,16 +14,21 @@ module.exports = async (Discord, client, reaction, user) => {
         if (reaction.message.embeds.length) {
             const songTitle = reaction.message.embeds[0].description;
             // could get url as well if desired
-            await ProfileModel.findOneAndUpdate(
-                {
-                    userID: user.id
-                },
-                {
-                    $push: {
-                        likedSongs: songTitle
+            const profile = await ProfileModel.findOne({ userID: user.id, likedSongs: { $all: [songTitle] } });
+            if (profile === null)
+            {
+                await ProfileModel.findOneAndUpdate(
+                    {
+                        userID: user.id
+                    },
+                    {
+                        $push: {
+                            likedSongs: songTitle
+                        }
                     }
-                }
-            );
+                );
+                console.log(`${user.username} liked : ${songTitle}`);
+            }
         }
     }
 }

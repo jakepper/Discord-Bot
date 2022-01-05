@@ -18,6 +18,6 @@ module.exports = {
             .map(({ value }) => value);
         serverQueue.songs.unshift(firstSong);
 
-        message.react(':thumbsup:');
+        message.react('👍');
     }
 }
