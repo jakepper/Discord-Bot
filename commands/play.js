@@ -46,7 +46,7 @@ module.exports = {
                     });
                     player.on(AudioPlayerStatus.Idle, async () => {
                         queueConstructor.songs.shift();
-                        await this.playNextSong(message.guild, client, Discord, profileData);
+                        await this.playNextSong(message.guild, client, Discord);
                     });
                     queueConstructor.player = player;
                     connection.subscribe(player);
@@ -68,8 +68,8 @@ module.exports = {
                 const url = args[0];
                 if (url.includes('youtube')) {
                     const youtube = await playdl.video_info(url);
-                    if (youtube.type === 'video') {
-                        serverQueue.songs.push({title: songInfo.video_details.title, url: songInfo.video_details.url});
+                    if (youtube.video_details.type === 'video') {
+                        serverQueue.songs.push({title: youtube.video_details.title, url: youtube.video_details.url});
                     }
                     else {
                         return message.channel.send('Please enter a valid youtube video URL')
@@ -82,7 +82,7 @@ module.exports = {
 
                         if (serverQueue.songs.length === 0) {
                             setTimeout(() => {
-                                this.playNextSong(message.guild, client, Discord, profileData);
+                                this.playNextSong(message.guild, client, Discord);
                             }, 5000);
                         }
 
@@ -117,7 +117,7 @@ module.exports = {
 
                         if (serverQueue.songs.length === 0) {
                             setTimeout(() => {
-                            this.playNextSong(message.guild, client, Discord, profileData);
+                            this.playNextSong(message.guild, client, Discord);
                             }, 5000);
                         }
                         
@@ -179,7 +179,7 @@ module.exports = {
                 await message.channel.send({embeds: [embed]});
             }
             else {
-                await this.playNextSong(message.guild, client, Discord, profileData);
+                await this.playNextSong(message.guild, client, Discord);
             }
         }
     },
@@ -191,7 +191,7 @@ module.exports = {
             return true;
         }
     },
-    async playNextSong(guild, client, Discord, profileData) {
+    async playNextSong(guild, client, Discord) {
         const songQueue = client.queue.get(guild.id);
         if (!songQueue) return;
 

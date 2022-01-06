@@ -5,7 +5,7 @@ module.exports = {
     description: "",
     usage: "",
     args: "",
-    execute(message, args, client, Discord, cmd) {
+    execute(message, args, client, Discord, cmd, profileData) {
         
     }
 }

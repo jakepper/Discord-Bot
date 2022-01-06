@@ -13,16 +13,18 @@ module.exports = async (Discord, client, reaction, user) => {
     if (reaction.emoji.name === redEmoji) {
         if (reaction.message.embeds.length) {
             const songTitle = reaction.message.embeds[0].description;
+            const url = reaction.message.embeds[0].url;
             await ProfileModel.findOneAndUpdate(
                 {
                     userID: user.id
                 },
                 {
                     $pull: {
-                        likedSongs: songTitle
+                        likedSongs: { title: songTitle, url: url }
                     }
                 }
             );
+            console.log(`${user.username} unliked : ${songTitle}`);
         }
         
     }

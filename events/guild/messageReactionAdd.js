@@ -13,8 +13,9 @@ module.exports = async (Discord, client, reaction, user) => {
     if (reaction.emoji.name === redEmoji) {
         if (reaction.message.embeds.length) {
             const songTitle = reaction.message.embeds[0].description;
+            const url = reaction.message.embeds[0].url;
             // could get url as well if desired
-            const profile = await ProfileModel.findOne({ userID: user.id, likedSongs: { $all: [songTitle] } });
+            const profile = await ProfileModel.findOne({ userID: user.id, likedSongs: { $elemMatch: { title: songTitle } } });
             if (profile === null)
             {
                 await ProfileModel.findOneAndUpdate(
@@ -23,7 +24,7 @@ module.exports = async (Discord, client, reaction, user) => {
                     },
                     {
                         $push: {
-                            likedSongs: songTitle
+                            likedSongs: { title: songTitle, url: url }
                         }
                     }
                 );
