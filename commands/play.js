@@ -202,14 +202,14 @@ module.exports = {
         const resource = createAudioResource(stream.stream, { inputType: stream.type });
         songQueue.player.play(resource);
 
-        const redEmoji = '❤️';
         const embed = new Discord.MessageEmbed()
             .setTitle('Now Playing')
             .setDescription(song.title)
             .setURL(song.url)
             .setColor('#dc143c');
         let msg = await songQueue.textChannel.send({embeds: [embed]});
-        msg.react(redEmoji);
+        msg.react('❤️');
+        msg.react('➕');
     }
 }
 

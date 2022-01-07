@@ -11,7 +11,7 @@ module.exports = {
             .setTitle('Command List')
             .setFooter(`Use ${process.env.PREFIX}usage <command> for more details`);
         client.commands.forEach((value, key) => {
-            embed.addField(key, value.description);
+            embed.addField(key, value.description, true);
         });
 
         return message.channel.send({ embeds: [embed]});

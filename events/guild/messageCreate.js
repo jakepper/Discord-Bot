@@ -40,7 +40,7 @@ const VALID_PERMISSIONS = [
 module.exports = async (Discord, client, message) => {
     const prefix = process.env.PREFIX;
 
-    if (!message.content.startsWith(prefix) || message.author.bot) return;
+    if (!message.content.startsWith(prefix) || message.author.bot || message.guild === null) return;
 
     let profileData;
     try {
