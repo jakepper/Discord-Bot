@@ -1,20 +1,22 @@
 const playdl = require('play-dl');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, NoSubscriberBehavior, AudioPlayerStatus } = require('@discordjs/voice');
+const colors = require('../colors.js');
 
 module.exports = {
     name: 'play',
-    aliases: [],
+    aliases: ['p'],
     cooldown: undefined,
     description: "Advanced Music Bot",
     usage: "play <query|URL>",
     args: "<query|URL> : REQUIRED - Resource query OR track/album/playlist link from spotify/soundcloud",
+    permissions: ['CONNECT', 'SPEAK'],
     async execute(message, args, client, Discord, cmd, profileData) {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send("You need to be in a voice channel to execute this command!");
 
-        const permissions = voiceChannel.permissionsFor(message.client.user);
-        if (!permissions.has('CONNECT')) return message.channel.send("You don't have the correct permissions");
-        if (!permissions.has('SPEAK')) return message.channel.send("You don't have the correct permissions");
+        // const permissions = voiceChannel.permissionsFor(message.client.user);
+        // if (!permissions.has('CONNECT')) return message.channel.send("You don't have the correct permissions");
+        // if (!permissions.has('SPEAK')) return message.channel.send("You don't have the correct permissions");
 
         let serverQueue = client.queue.get(message.guild.id);
 
@@ -94,7 +96,7 @@ module.exports = {
                         const embed = new Discord.MessageEmbed()
                             .setTitle(`***${soundcloud.tracks.length}*** songs queued from - \`${soundcloud.name}\``)
                             .setDescription(`Creator : ${soundcloud.user.name}`)
-                            .setColor('#dc143c');
+                            .setColor(colors.QUEUED);
                             //.setURL(url);
                         return message.channel.send({embeds: [embed]});
                     }
@@ -139,8 +141,7 @@ module.exports = {
                         const embed = new Discord.MessageEmbed()
                             .setTitle(`***${count}*** songs queued from - \`${spotify.name}\``)
                             .setDescription(`Creator : ${author}`)
-                            .setColor('#dc143c');
-                            //.setURL(url);
+                            .setColor(colors.QUEUED);
                         return message.channel.send({embeds: [embed]});
                     }
                     else if (spotify.type === 'track') {
@@ -175,7 +176,7 @@ module.exports = {
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Track Queued - Position ${serverQueue.songs.length - 1}`)
                     .setDescription(serverQueue.songs[serverQueue.songs.length - 1].title)
-                    .setColor('#dc143c');
+                    .setColor(colors.QUEUED);
                 await message.channel.send({embeds: [embed]});
             }
             else {
@@ -206,7 +207,7 @@ module.exports = {
             .setTitle('Now Playing')
             .setDescription(song.title)
             .setURL(song.url)
-            .setColor('#dc143c');
+            .setColor(colors.NOW_PLAYING);
         let msg = await songQueue.textChannel.send({embeds: [embed]});
         msg.react('❤️');
         msg.react('➕');

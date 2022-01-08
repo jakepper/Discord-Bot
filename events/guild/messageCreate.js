@@ -49,7 +49,8 @@ module.exports = async (Discord, client, message) => {
             let profile = await ProfileModel.create({
                 userID: message.author.id,
                 serverID: message.guild.id,
-                likedSongs: []
+                likedSongs: [],
+                playlists: []
             });
             profile.save();
         }

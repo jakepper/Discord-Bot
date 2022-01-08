@@ -7,6 +7,7 @@ module.exports = {
     description: "Pauses the currently playing resource",
     usage: "pause",
     args: "NA",
+    permissions: [],
     execute(message, args, client, Discord, cmd, profileData) {
         if (!message.member.voice.channel) return message.channel.send('You need to be in a voice channel to execute this command!');
 

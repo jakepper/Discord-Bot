@@ -5,6 +5,7 @@ module.exports = {
     description: "Disconnects bot from voice channel",
     usage: "stop",
     args: "NA",
+    permissions: [],
     execute(message, args, client, Discord) {
         if (!message.member.voice.channel) return message.channel.send('You need to be in a voice channel to execute this command!');
 
@@ -14,5 +15,6 @@ module.exports = {
         serverQueue.songs = [];
         serverQueue.connection.destroy();
         client.queue.delete(message.guild.id);
+        message.react('👍');
     }
 }

@@ -1,4 +1,5 @@
 const { playNextSong } = require('./play.js');
+const colors = require('../colors.js');
 const { joinVoiceChannel, createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus } = require('@discordjs/voice');
 
 module.exports = {
@@ -8,6 +9,7 @@ module.exports = {
     description: "Queues all your liked songs",
     usage: "playlikes",
     args: "NA",
+    permissions: ['CONNECT', 'SPEAK'],
     async execute(message, args, client, Discord, cmd, profileData) {
         const voiceChannel = message.member.voice.channel;
         if (!voiceChannel) return message.channel.send("You need to be in a voice channel to execute this command!");
@@ -71,8 +73,7 @@ module.exports = {
 
         const embed = new Discord.MessageEmbed()
             .setTitle(`***${profileData.likedSongs.length}*** songs queued from - \`${message.author.username}'s liked songs\``)
-            //.setDescription(`Creator : ${message.author.username}`)
-            .setColor('#dc143c');
+            .setColor(colors.QUEUED);
 
         return message.channel.send({ embeds: [embed] });
     }

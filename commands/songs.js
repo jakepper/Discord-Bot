@@ -1,4 +1,5 @@
 const ProfileModel = require('../models/profileSchema');
+const colors = require('../colors.js');
 
 module.exports = {
     name: 'songs',
@@ -6,6 +7,7 @@ module.exports = {
     description: "DM's you a list of your liked songs",
     usage: "songs",
     args: "NA",
+    permissions: [],
     async execute(message, args, client, Discord, cmd, profileData) {
         const songs = profileData.likedSongs;
 
@@ -20,8 +22,8 @@ module.exports = {
 
         const embed = new Discord.MessageEmbed()
             .setTitle('Liked Songs')
-            .setDescription(description.join('\n'));
-
+            .setDescription(description.join('\n'))
+            .setColor(colors.PLAYLIST);
         return message.author.send({ embeds: [embed] });
     }
 }

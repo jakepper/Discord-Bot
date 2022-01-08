@@ -1,10 +1,11 @@
 const ProfileModel = require('../../models/profileSchema');
+require('dotenv').config();
 
 module.exports = async (Discord, client, reaction, user) => {
     if (user.bot) return;
 
     const profileData = await ProfileModel.findOne({ userID: user.id });
-    if (!profileData) return console.log(`${user.username} does not have a profile in the database`);
+    if (!profileData) return message.send(`You do not have a Profile set up yet\n Use ${process.env.PREFIX}help and a profile will automatically be set up for you :)`);
 
     if (reaction.message.partial) await reaction.message.fetch();
     if (reaction.partial) await reaction.fetch();
@@ -68,7 +69,7 @@ module.exports = async (Discord, client, reaction, user) => {
                     returnNewDocument: true
                 }
             );
-            console.log(newDoc);
+            // console.log(newDoc);
         }
     }
 }

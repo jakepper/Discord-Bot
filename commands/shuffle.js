@@ -5,6 +5,7 @@ module.exports = {
     description: "Shuffles the current queue if any",
     usage: "shuffle",
     args: "NA",
+    permissions: [],
     execute(message, args, client, Discord) {
         if (!message.member.voice.channel) return message.channel.send('You need to be in a voice channel to execute this command!');
         

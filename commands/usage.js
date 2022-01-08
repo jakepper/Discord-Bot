@@ -1,4 +1,6 @@
 require('dotenv').config();
+const colors = require('../colors.js');
+
 
 module.exports = {
     name: 'usage',
@@ -6,6 +8,7 @@ module.exports = {
     description: "Details the usage of an individual command",
     usage: "usage <command>",
     args: "<command> : REQUIRED - Name of a command",
+    permissions: [],
     execute(message, args, client, Discord) {
         if (!args[0]) return message.channel.send('Please enter the command you would like to see the usage of');
 
@@ -27,7 +30,8 @@ module.exports = {
                 { name: 'Aliases', value: command.aliases.join(" | ") || "NONE" },
                 { name: 'Arguments', value: command.args },
                 { name: 'Description', value: command.description }
-            );
+            )
+            .setColor(colors.USAGE);
         return message.channel.send({ embeds: [embed]});
     }
 }

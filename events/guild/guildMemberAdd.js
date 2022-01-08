@@ -8,7 +8,8 @@ module.exports = async (Discord, client, guildMember) => {
         let profile = await ProfileModel.create({
             userID: guildMember.id,
             serverID: guildMember.guild.id,
-            likedSongs: []
+            likedSongs: [],
+            playlists: []
         });
         profile.save();
     }

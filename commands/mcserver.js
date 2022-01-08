@@ -1,4 +1,5 @@
 const util = require('minecraft-server-util');
+const colors = require('../colors.js');
 
 module.exports = {
     name: 'mcserver',
@@ -7,6 +8,7 @@ module.exports = {
     description: "Get status information about a minecraft server",
     usage: "mcserver <IP Address> [port]",
     args: "<IP Address> : REQUIRED - Minecraft servers IP address\n[port] : OPTIONAL (default=25565) - Minecraft servers port number ",
+    permissions: [],
     execute(message, args, client, Discord, cmd, profileData) {
         if (!args[0]) return message.channel.send('Please enter a minecraft server ip');
         
@@ -15,7 +17,7 @@ module.exports = {
         util.status(args[0], port)
         .then(response => {
             const embed = new Discord.MessageEmbed()
-            .setColor('#ffffff')
+            .setColor(colors.MC)
             .setTitle('Minecraft Server Status')
             .addFields(
                 {name: 'Status', value: 'ONLINE'},
