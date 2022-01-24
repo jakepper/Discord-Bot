@@ -3,7 +3,7 @@ const colors = require('../colors.js');
 module.exports = {
     name: 'queue',
     aliases: ['q'],
-    cooldown: undefined,
+    cooldown: 30,
     description: "Lists the current queued resources",
     usage: "queue [amount]",
     args: "[amount] : OPTIONAL (default=10) - Number of songs to display",
@@ -38,10 +38,5 @@ module.exports = {
             .setDescription(description.join(""))
             .setColor(colors.QUEUE);
         return message.channel.send({ embeds: [embed] });
-
-        // console.log('Current Queue:')
-        // for (const song of serverQueue.songs) {
-        //     console.log('\t' + song.title);
-        // }
     }
 }

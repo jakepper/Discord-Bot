@@ -4,6 +4,7 @@ const colors = require('../colors.js');
 module.exports = {
     name: 'songs',
     aliases: ['liked', 'likedsongs', 'likes'],
+    cooldown: 10,
     description: "DM's you a list of your liked songs",
     usage: "songs",
     args: "NA",
@@ -13,17 +14,33 @@ module.exports = {
 
         if (!songs.length) return message.author.send("You don't have any liked songs");
 
+        let descriptions = [];
         let description = [];
-        let i = 1;
+        let count = 1;
         for (const song of songs) {
-            description.push(`${i} : ${song.title}}`);
-            i++;
+            description.push(`${count++} : ${song.title}}`);
+            if (count % 100 === 0) {
+                descriptions.push(description);
+                description = [];
+            }
         }
+        descriptions.push(description);
 
         const embed = new Discord.MessageEmbed()
             .setTitle('Liked Songs')
-            .setDescription(description.join('\n'))
+            .setDescription(descriptions[0].join('\n'))
+            .setFooter(`by ${message.author.username}`)
             .setColor(colors.PLAYLIST);
-        return message.author.send({ embeds: [embed] });
+        message.author.send({ embeds: [embed] });
+
+        for (let i = 1; i < descriptions.length; i++) {
+            let extraEmbed = new Discord.MessageEmbed()
+                .setDescription(descriptions[i].join('\n'))
+                .setFooter(`by ${message.author.username}`)
+                .setColor(colors.PLAYLIST);
+            message.author.send({ embeds: [extraEmbed] });
+        }
+        
+        return;
     }
 }

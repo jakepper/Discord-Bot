@@ -154,9 +154,6 @@ module.exports = {
                             return message.channel.send('Error finding song.');
                         }
                     }
-                    else if (spotify.type === 'album') {
-                        return message.channel.send('Not yet implemented: Spotify Albums');
-                    }
                     else {
                         return message.channel.send('Please enter a valid spotify track/album/playlist URL');
                     }

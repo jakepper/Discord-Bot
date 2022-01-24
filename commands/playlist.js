@@ -3,11 +3,12 @@ const { validURL, playNextSong } = require('./play.js');
 const { joinVoiceChannel, createAudioPlayer, NoSubscriberBehavior, AudioPlayerStatus } = require('@discordjs/voice');
 const playdl = require('play-dl');
 const colors = require('../colors.js');
+require('dotenv').config();
 
 module.exports = {
     name: 'playlist',
-    aliases: ['playlists', 'pl'],
-    cooldown: undefined,
+    aliases: ['playlists', 'pl', 'botplaylist', 'botplaylists', 'botpl'],
+    cooldown: 5,
     description: "Create, delete, add to, and list playlists",
     usage: "playlist <function> <playlist-name>",
     args: "<function> : REQUIRED - create | delete | add | play | list\n<playlist-name> : REQUIRED (create,delete,add,play) : OPTIONAL (list) - Name of Playlist",
@@ -17,15 +18,25 @@ module.exports = {
 
         const func = args[0].toLowerCase();
 
+        let id = message.author.id;
+        let author = message.author.username;
+        let profile = profileData;
+        if (['botplaylists', 'botplaylist', 'botpl'].includes(cmd)) {
+            id = `${process.env.CLIENTID}`;
+            author = 'bot';
+
+            profile = await ProfileModel.findOne({ userID: id, serverID: message.guild.id });
+        }
+
         if (func === 'create' || func === 'c') {
             if (args.length < 2) return message.channel.send('Please enter a playlist name');
             const playlistName = args[1];
 
-            for (const playlist of profileData.playlists) {
+            for (const playlist of profile.playlists) {
                 if (playlistName === playlist.name) return message.channel.send(`You already have a playlist named \`${playlistName}\``);
             }
 
-            await ProfileModel.findOneAndUpdate({ userID: message.author.id }, 
+            await ProfileModel.findOneAndUpdate({ userID: id }, 
                 {
                     $push: {
                         playlists: { name: playlistName, songs: [] }
@@ -35,7 +46,7 @@ module.exports = {
 
             const embed = new Discord.MessageEmbed()
                 .setTitle(`Created playlist - ${playlistName}`)
-                .setDescription(`Belongs to - \`${message.author.username}\``)
+                .setDescription(`Belongs to - \`${author}\``)
                 .setColor(colors.QUEUED);
             return message.channel.send({ embeds: [embed] });
         }
@@ -43,10 +54,10 @@ module.exports = {
             if (args.length < 2) return message.channel.send('Please enter a playlist name');
             const playlistName = args[1];
             
-            const exists = this.exists(profileData, playlistName);
+            const exists = this.exists(profile, playlistName);
             if (!exists) return message.channel.send(`You do not have a playlist named \`${playlistName}\``);
 
-            const deleted = await ProfileModel.findOneAndUpdate({ userID: message.author.id },
+            const deleted = await ProfileModel.findOneAndUpdate({ userID: id },
                 {
                     $pull: {
                         playlists: { name: playlistName }
@@ -56,7 +67,7 @@ module.exports = {
             
             const embed = new Discord.MessageEmbed()
                 .setTitle(`Deleted playlist - ${playlistName}`)
-                .setDescription(`Belonged to - \`${message.author.username}\``)
+                .setDescription(`Belonged to - \`${author}\``)
                 .setColor(colors.QUEUED);
             return message.channel.send({ embeds: [embed] });
         }
@@ -64,7 +75,7 @@ module.exports = {
             if (args.length < 2) return message.channel.send('Please enter a playlist name');
             const playlistName = args[1];
 
-            if (!this.exists(profileData, playlistName)) return message.channel.send(`You do not have a playlist named \`${playlistName}\``);
+            if (!this.exists(profile, playlistName)) return message.channel.send(`You do not have a playlist named \`${playlistName}\``);
 
             const voiceChannel = message.member.voice.channel;
             if (!voiceChannel) return message.channel.send("You need to be in a voice channel to execute this command!");
@@ -116,7 +127,7 @@ module.exports = {
             }
 
             let playlist;
-            for (const pl of profileData.playlists) {
+            for (const pl of profile.playlists) {
                 if (pl.name === playlistName) {
                     playlist = pl.songs;
                 }
@@ -128,44 +139,61 @@ module.exports = {
             console.log(`queued playlist`);
 
             const embed = new Discord.MessageEmbed()
-                .setTitle(`***${playlist.length}*** songs queued from \`${message.author.username}\`'s playlist - \`${playlistName}\``)
+                .setTitle(`***${playlist.length}*** songs queued from \`${author}\`'s playlist - \`${playlistName}\``)
                 .setColor(colors.QUEUED);
 
             return message.channel.send({ embeds: [embed] });
         }
         else if (func === 'list' || func === 'l') {
-            if (!profileData.playlists.length) return message.channel.send("You don't have any playlists");
+            if (!profile.playlists.length) return message.channel.send("You don't have any playlists");
 
             if (args.length === 2) {
                 const playlistName = args[1];
-                if (!this.exists(profileData, playlistName)) return message.channel.send(`You do not have a playlist named \`${playlistName}\``);
+                if (!this.exists(profile, playlistName)) return message.channel.send(`You do not have a playlist named \`${playlistName}\``);
 
-                let songs = []
-                for (const playlist of profileData.playlists) {
+                let songs = [];
+                for (const playlist of profile.playlists) {
                     if (playlist.name === playlistName) {
                         songs = playlist.songs;
                     }
                 }
-                let description = []
-                let i = 1;
+
+                let descriptions = [];
+                let description = [];
+                let count = 1;
                 for (const song of songs) {
-                    description.push(`${i++} : ${song.title}`);
+                    description.push(`${count++} : ${song.title}`);
+                    if (count % 100 === 0) {
+                        descriptions.push(description);
+                        description = [];
+                    }
                 }
+                descriptions.push(description);
 
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`Playlist - \`${playlistName}\``)
-                    .setDescription(description.join('\n'))
+                    .setDescription(descriptions[0].join('\n'))
                     .setFooter(`by ${message.author.username}`)
                     .setColor(colors.PLAYLIST);
-                return message.channel.send({ embeds: [embed] });
+                message.author.send({ embeds: [embed] });
+
+                for (let i = 1; i < descriptions.length; i++) {
+                    let extraEmbed = new Discord.MessageEmbed()
+                        .setDescription(descriptions[i].join('\n'))
+                        .setFooter(`by ${message.author.username}`)
+                        .setColor(colors.PLAYLIST);
+                    message.author.send({ embeds: [extraEmbed] });
+                }
+                
+                return;
             }
 
             let playlists = [];
-            for (const playlist of profileData.playlists) {
+            for (const playlist of profile.playlists) {
                 playlists.push(`**${playlist.name}** - ${playlist.songs.length} tracks`);
             }
             const embed = new Discord.MessageEmbed()
-                .setTitle(`\`${message.author.username}\`'s Playlists`)
+                .setTitle(`\`${author}\`'s Playlists`)
                 .setDescription(playlists.join('\n'))
                 .setColor(colors.PLAYLIST);
             return message.channel.send({ embeds: [embed] });
@@ -174,7 +202,7 @@ module.exports = {
             if (args.length < 3) return message.channel.send(`Please enter a playlist name and spotify playlist url`);
 
             const playlistName = args[1];
-            if (!this.exists(profileData, playlistName)) return message.channel.send(`You do not have a playlist named \`${playlistName}\``);
+            if (!this.exists(profile, playlistName)) return message.channel.send(`You do not have a playlist named \`${playlistName}\``);
 
             const url = args[2];
 
@@ -202,7 +230,8 @@ module.exports = {
                         if (video) {
                             await ProfileModel.findOneAndUpdate(
                                 {
-                                    userID: message.author.id,
+                                    userID: id,
+                                    serverID: message.guild.id,
                                     playlists: {
                                         $elemMatch: { name: playlistName }
                                     }
@@ -222,15 +251,19 @@ module.exports = {
 
                 const embed = new Discord.MessageEmbed()
                     .setTitle(`***${count}*** songs added to \`${playlistName}\``)
+                    .setDescription(`Belongs to - \`${author}\``)
                     .setColor(colors.QUEUED);
                 return message.reply({embeds: [embed]});
+            }
+            else {
+                return message.channel.send('Sorry, you are only able to add spotify playlists and albums currently, tracks and queries coming soon');
             }
         }
 
         return message.channel.send('Invalid command arguments');
     },
-    exists(profileData, playlistName) {
-        for (const playlist of profileData.playlists) {
+    exists(profile, playlistName) {
+        for (const playlist of profile.playlists) {
             if (playlistName === playlist.name) {
                 return true;
             }

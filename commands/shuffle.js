@@ -1,7 +1,7 @@
 module.exports = {
     name: 'shuffle',
     aliases: ['random', 'randomize', 'mix'],
-    cooldown: undefined,
+    cooldown: 5,
     description: "Shuffles the current queue if any",
     usage: "shuffle",
     args: "NA",
